@@ -81,7 +81,7 @@ Gold (Optional: Analytics / BI / ML consumption)
     ├── monitoring.py
     ├── main.py
     └── README.md
-```
+
 Configuration (Generic Example)
 {
   "environment": {
