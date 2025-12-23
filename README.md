@@ -192,3 +192,47 @@ Execution history and operational metadata can be inspected using:
 
 DESCRIBE HISTORY <target_table>;
 
+## Performance & Optimization
+The pipeline is designed to remain stable and efficient as data volumes grow.
+
+Delta Lake capabilities are used to manage file sizes, optimize read patterns,
+and control long-term storage behavior. Where applicable, periodic maintenance
+operations such as file compaction and data layout optimization are applied.
+
+Data retention and cleanup are handled in alignment with organizational policies
+to balance performance, cost, and historical traceability.
+
+---
+
+## CI/CD & Deployment
+Pipeline code and configuration are managed through Git-based workflows,
+enabling controlled and traceable changes over time.
+
+Development and promotion follow a clear environment separation model
+(DEV → TEST → PROD), with environment-specific settings kept outside the codebase.
+This approach ensures consistency across environments while preventing
+hardcoded paths or credentials.
+
+Changes can be promoted using standard CI/CD tooling or Databricks-native
+deployment mechanisms, depending on organizational standards.
+
+---
+
+## Testing & Validation
+Pipeline reliability is ensured through a combination of logic validation
+and execution-level checks.
+
+Testing focuses on verifying transformation behavior, validating data integrity,
+and confirming successful execution after deployment. This includes basic
+unit-level checks and smoke tests to detect issues early in the release process.
+
+---
+
+## Layering Strategy
+In practical implementations, ingestion flows often relied on a single clean
+target layer combined with `MERGE` logic to handle data changes.
+
+A layered architecture (such as Bronze → Silver) is presented as a scalable
+pattern for larger or more complex pipelines that require replayability,
+auditing, or schema evolution, but is not required for every use case.
+
