@@ -119,65 +119,56 @@ Configuration (Generic Example)
     "audit_columns": ["<created_at>", "<updated_at>"]
   }
 }
+## Pipeline Stages (Conceptual Overview)
 
-Pipeline Stages (Conceptual)
-1) Extract (JDBC)
+The pipeline follows a clear and modular ETL structure, designed to support
+both simple ingestion flows and more advanced CDC-style patterns when required.
 
-Common patterns:
+### 1️⃣ Extract (JDBC Ingestion)
+Data is ingested from relational source systems using JDBC connectivity.
 
-Single window ingestion (BETWEEN)
+Typical ingestion patterns include:
+- Window-based ingestion using date or timestamp filters
+- Configurable partitioning to support scalable reads
+- Optional parallel execution when working with large tables
 
-Monthly window ingestion (partitioned by date/month)
+Core responsibilities:
+- Build JDBC connection parameters
+- Define ingestion windows based on configuration
+- Read source data using partition filters
+- Persist extracted data for downstream processing
 
-Parallel ingestion per window (e.g., month-by-month)
+---
+
+### 2️⃣ Transform
+The transformation stage focuses on preparing the data for downstream usage.
 
 Typical responsibilities:
+- Normalize column naming conventions
+- Exclude non-required fields
+- Cast columns to the target schema
+- Apply basic data validation (null checks, duplicates, domain constraints)
 
-Build JDBC connection parameters
+Transformations are intentionally kept deterministic and transparent.
 
-Generate window boundaries
+---
 
-Read data using filters on the partition column
+### 3️⃣ Load (MERGE-Based Upsert)
+Processed data is written to the target Delta tables using **MERGE** operations.
 
-Write raw results to Bronze
+Supported behaviors:
+- Insert new records
+- Update existing records based on defined business keys
+- Exclude audit columns from updates when required
 
-2) Transform
-
-Typical responsibilities:
-
-Normalize column names
-
-Drop excluded columns
-
-Cast to target schema
-
-Basic validation (null checks, domain checks, duplicates)
-
-3) Load (Bronze → Silver)
-
-Two common modes:
-
-A. Append-only (Batch)
-
-Write cleaned data to Silver with partitioning
-
-B. CDC-style Upsert (MERGE)
-
-MERGE Bronze into Silver using join keys
-
-Update only non-audit columns
-
-Insert new records when not matched
-
-Example (conceptual):
-
-MERGE INTO <silver_table> AS target
-USING <bronze_view_or_table> AS source
+Conceptual example:
+```sql
+MERGE INTO <target_table> AS target
+USING <source_view> AS source
 ON <join_conditions>
-WHEN MATCHED THEN UPDATE SET
-  target.<col> = source.<col>
-WHEN NOT MATCHED THEN INSERT (...)
-VALUES (...);
+WHEN MATCHED THEN UPDATE SET ...
+WHEN NOT MATCHED THEN INSERT ...
+```
 
 Monitoring (Generic)
 
