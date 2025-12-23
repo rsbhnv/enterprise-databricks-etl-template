@@ -119,6 +119,7 @@ Configuration (Generic Example)
     "audit_columns": ["<created_at>", "<updated_at>"]
   }
 }
+```
 ## Pipeline Stages (Conceptual Overview)
 
 The pipeline follows a clear and modular ETL structure, designed to support
